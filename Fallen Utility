@@ -1,0 +1,381 @@
+// ==UserScript==
+// @name         Fallen Utility
+// @namespace    http://tampermonkey.net/
+// @version      4.0
+// @description  Utility For Minefun.io - Neon Blue Edition
+// @author       You
+// @match        https://minefun.io/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=minefun.io
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // ==============================
+    // CSS - NEON BLUE & DARK THEME
+    // ==============================
+    const styles = `
+    @font-face { font-family: "FallenFont"; src: url(https://fonts.gstatic.com/s/productsans/v19/pxiDypQkot1TnFhsFMOfGShVF9eO.woff2); }
+    
+    :root {
+        --neon: #00e5ff;
+        --dark: rgba(10, 10, 10, 0.95);
+        --glow: 0 0 15px rgba(0, 229, 255, 0.5);
+    }
+
+    .fallen-gui { font-family: "FallenFont", sans-serif !important; }
+
+    .gui-panel { 
+        position: fixed; width: 190px; background: var(--dark); border: 1px solid var(--neon);
+        border-radius: 8px; z-index: 10000; overflow: hidden; display: none; box-shadow: var(--glow);
+    }
+
+    .gui-header { 
+        height: 38px; font-weight: 900; display: flex; align-items: center; justify-content: center; 
+        font-size: 18px; cursor: grab; background: #000; color: var(--neon); border-bottom: 2px solid var(--neon);
+    }
+
+    .gui-button { 
+        padding: 8px 12px; cursor: pointer; transition: 0.2s; font-size: 14px; 
+        background: rgba(35, 35, 35, 0.9); color: #eee; border-bottom: 1px solid rgba(0, 229, 255, 0.1); 
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .gui-button.enabled { background: rgba(0, 229, 255, 0.25); color: var(--neon); font-weight: bold; }
+
+    .gui-settings { display: none; background: rgba(20, 20, 20, 0.95); padding: 8px; border-bottom: 1px solid var(--neon); }
+    .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; color: var(--neon); }
+    .setting-input { width: 45px; background: #000; border: 1px solid var(--neon); color: #fff; text-align: center; border-radius: 3px; }
+    
+    #damage-display {
+        position: fixed; top: 15px; left: 50%; transform: translateX(-50%); color: var(--neon);
+        font-size: 24px; font-weight: 900; z-index: 9999; text-shadow: 0 0 10px var(--neon), 2px 2px #000; pointer-events: none;
+    }
+
+    #fallen-arraylist { position: fixed; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; z-index: 9999; pointer-events: none; }
+    .array-item { 
+        background: rgba(0, 0, 0, 0.6); color: var(--neon); padding: 2px 10px; margin-bottom: 1px; 
+        font-weight: 900; font-size: 15px; border-right: 3px solid var(--neon); text-shadow: 0 0 5px var(--neon);
+    }
+
+    /* KEYSTROKES - REDUCED SIZE */
+    #fallen-keystrokes {
+        position: fixed; bottom: 20px; left: 20px; display: none; flex-direction: column; gap: 4px; z-index: 9999;
+    }
+    .ks-row { display: flex; gap: 4px; justify-content: center; }
+    .ks-key {
+        width: 35px; height: 35px; background: rgba(0,0,0,0.6); border: 1px solid var(--neon);
+        color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border-radius: 4px;
+    }
+    .ks-key.active { background: var(--neon); color: black; box-shadow: 0 0 8px var(--neon); }
+
+    .gui-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9998; background: rgba(0,0,0,0.25); backdrop-filter: blur(3px); display: none; }
+    `;
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+
+    // ==============================
+    // CORE HOOKS
+    // ==============================
+    const hooks = {
+        get stores() { try { let p = app._vnode.component.appContext.provides; return p[Object.getOwnPropertySymbols(p).find(t => p[t]._s)]._s; } catch(e){return null;} },
+        get gameWorld() { return this.stores?.get("gameState")?.gameWorld; },
+        get server() { return this.gameWorld?.server; }
+    };
+
+    let totalDamage = 0;
+
+    // ==============================
+    // MODULES
+    // ==============================
+    const Modules = {
+        // COMBAT
+        GunModifier: { cat: 'Combat', enabled: false, desc: "Modifies weapon stats.",
+            options: { "Spread": 0.1, "Bullets": 10, "Firerate": 1, "NoRecoil": true },
+            tick: () => {
+                if (!Modules.GunModifier.enabled) return;
+                let spec = hooks.gameWorld?.systemsManager?.activeSystems.find(e => e?.bulletsSystem)?.playerShooter?.currPlayerWeaponSpec;
+                if (spec) {
+                    spec.bulletsPerShot = parseFloat(Modules.GunModifier.options.Bullets);
+                    spec.startSpread = parseFloat(Modules.GunModifier.options.Spread);
+                    spec.firerateMs = parseFloat(Modules.GunModifier.options.Firerate);
+                    if (Modules.GunModifier.options.NoRecoil) { spec.recoilAttackY = 0; spec.recoilAttackX = 0; }
+                }
+            }
+        },
+        Killaura: { cat: 'Combat', enabled: false, desc: "Auto attack nearby players.", options: {"Reach": 4, "Delay": 100}, lastHit: 0,
+            tick: () => {
+                if (!Modules.Killaura.enabled || Date.now() - Modules.Killaura.lastHit < Modules.Killaura.options.Delay) return;
+                const p = hooks.gameWorld?.player; if(!p) return;
+                hooks.server?.players.forEach((en, id) => {
+                    if (en.isAlive && id !== p.id) {
+                        let dist = Math.hypot(p.position.x - en._model.position.x, p.position.z - en._model.position.z);
+                        if (dist <= Modules.Killaura.options.Reach) {
+                            hooks.server.sendData(13, [hooks.gameWorld.time.localServerTimeMs, p.position.x, p.position.y + 1.6, p.position.z, 0, 0, 0, dist, id]);
+                            Modules.Killaura.lastHit = Date.now();
+                        }
+                    }
+                });
+            }
+        },
+        "1HitAll": { cat: 'Combat', enabled: false, desc: "Hit everyone once.", onToggle: (v) => {
+            if(v) { hooks.server?.players.forEach((en, id) => { hooks.server.sendData(13, [hooks.gameWorld.time.localServerTimeMs, 0,0,0, 0,0,0, 2, id]); });
+            setTimeout(()=> { Modules["1HitAll"].enabled = false; updateArrayList(); }, 100); }
+        }},
+        "2HitAll": { cat: 'Combat', enabled: false, desc: "Hit everyone twice (Massive).", onToggle: (v) => {
+            if(v) { hooks.server?.players.forEach((en, id) => { hooks.server.sendData(13, [hooks.gameWorld.time.localServerTimeMs, 0,0,0, 0,0,0, 2, id]); hooks.server.sendData(13, [hooks.gameWorld.time.localServerTimeMs+1, 0,0,0, 0,0,0, 2, id]); });
+            setTimeout(()=> { Modules["2HitAll"].enabled = false; updateArrayList(); }, 100); }
+        }},
+        Aimbot: { cat: 'Combat', enabled: false, desc: "Lock on nearest enemy.", tick: () => {
+            if(!Modules.Aimbot.enabled || !hooks.gameWorld) return;
+            const p = hooks.gameWorld.player; let target = null, dist = 100;
+            hooks.server?.players.forEach(en => { if(en.isAlive && en.id !== p.id) { let d = Math.hypot(p.position.x-en._model.position.x, p.position.z-en._model.position.z); if(d < dist) { dist = d; target = en; }}});
+            if(target && (p.inputs.leftMB || p.inputs.rightMB)) {
+                let dx = target._model.position.x - p.position.x, dz = target._model.position.z - p.position.z;
+                p.rotation.y = (Math.atan2(dx, dz) + Math.PI) % (Math.PI * 2);
+            }
+        }},
+
+        // MOVEMENT
+        GhostMode: { cat: 'Movement', enabled: false, desc: "Hide your character locally.", onToggle: (v) => { if(hooks.gameWorld?.player?.model) hooks.gameWorld.player.model.visible = !v; }},
+        Scaffold: { cat: 'Movement', enabled: false, desc: "Auto bridge builder.", tick: () => {
+            if (!Modules.Scaffold.enabled) return;
+            const p = hooks.gameWorld.player; const pos = [Math.floor(p.position.x), Math.floor(p.position.y - 1), Math.floor(p.position.z)];
+            if (hooks.gameWorld.chunkManager.getBlock(...pos) === 0) hooks.gameWorld.chunkManager.setBlock(...pos, p.currentInventoryItemId, true, true);
+        }},
+        NoFall: { cat: 'Movement', enabled: false, desc: "Bypass fall damage." },
+        Spider: { cat: 'Movement', enabled: false, desc: "Climb up walls.", tick: () => {
+            const p = hooks.gameWorld?.player; if (Modules.Spider.enabled && p?.inputs.jump && (p.velocity.velVec3.x === 0 || p.velocity.velVec3.z === 0)) p.velocity.velVec3.y = 5;
+        }},
+        Fly: { cat: 'Movement', enabled: false, desc: "Creative fly.", tick: () => {
+            const p = hooks.gameWorld?.player; if(!p) return;
+            if(Modules.Fly.enabled) { p.velocity.gravity = 0; p.velocity.velVec3.y = p.inputs.jump ? 5 : (p.inputs.crouch ? -5 : 0); }
+            else { p.velocity.gravity = 23; }
+        }},
+
+        // VISUAL
+        Arraylist: { cat: 'Visual', enabled: true, desc: "Show active features list." },
+        Freecam: { cat: 'Visual', enabled: false, desc: "View out of body.", onToggle: (v) => {
+           // Basic freecam logic
+        }},
+        Chams: { cat: 'Visual', enabled: false, desc: "See players through walls.", tick: () => {
+            hooks.server?.players.forEach(p => { p.playerMaterial.depthTest = !Modules.Chams.enabled; p.playerMaterial.wireframe = Modules.Chams.enabled; });
+        }},
+        NoFog: { cat: 'Visual', enabled: false, desc: "Remove game fog.", tick: () => {
+            if(hooks.gameWorld?.threeScene?.scene?.fog) hooks.gameWorld.threeScene.scene.fog.far = Modules.NoFog.enabled ? 100000 : 1000;
+        }},
+
+        // RESOURCES
+        AdBypass: { cat: 'Resources', enabled: true, desc: "Skip rewards ads.", onToggle: (v) => {
+            const ads = hooks.stores?.get("adsStore"); if (v && ads) { Modules.AdBypass._orig = ads.rewardCommercialVideoWrapper; ads.rewardCommercialVideoWrapper = () => true; }
+            else if (ads && Modules.AdBypass._orig) ads.rewardCommercialVideoWrapper = Modules.AdBypass._orig;
+        }},
+        NoHunger: { cat: 'Resources', enabled: false, desc: "No stamina/hunger loss." },
+        Crafting: { cat: 'Resources', enabled: false, desc: "Open Crafting anywhere.", onToggle: () => openRemote(2) },
+        Cutting: { cat: 'Resources', enabled: false, desc: "Open Cutting anywhere.", onToggle: () => openRemote(10) },
+
+        // WORLD
+        Instabreak: { cat: 'World', enabled: false, desc: "Instant block breaking.", tick: () => {
+            if(Modules.Instabreak.enabled) Object.values(hooks.gameWorld?.items || {}).forEach(e => { if(e?.destruction) e.destruction.durability = 0; });
+        }},
+        CleanABlockTree: { cat: 'World', enabled: false, desc: "Destroy trees only.", options: {"Radius": 3}, tick: () => {
+            if(!Modules.CleanABlockTree.enabled) return;
+            const p = hooks.gameWorld.player; const r = parseInt(Modules.CleanABlockTree.options.Radius);
+            for(let x=-r; x<=r; x++) for(let y=-r; y<=r; y++) for(let z=-r; z<=r; z++) {
+                let px=Math.floor(p.position.x)+x, py=Math.floor(p.position.y)+y, pz=Math.floor(p.position.z)+z;
+                if([471, 502, 474, 501, 610].includes(hooks.gameWorld.chunkManager.getBlock(px, py, pz))) hooks.gameWorld.chunkManager.setBlock(px, py, pz, 0, true, true);
+            }
+        }},
+        MineExceptOres: { cat: 'World', enabled: false, desc: "Destroy everything but ores.", options: {"Radius": 3}, tick: () => {
+            if(!Modules.MineExceptOres.enabled) return;
+            const p = hooks.gameWorld.player; const r = parseInt(Modules.MineExceptOres.options.Radius);
+            for(let x=-r; x<=r; x++) for(let y=-r; y<=r; y++) for(let z=-r; z<=r; z++) {
+                let px=Math.floor(p.position.x)+x, py=Math.floor(p.position.y)+y, pz=Math.floor(p.position.z)+z;
+                let b = hooks.gameWorld.chunkManager.getBlock(px, py, pz);
+                if(b !== 0 && ![581, 691, 830, 571, 652, 616].includes(b)) hooks.gameWorld.chunkManager.setBlock(px, py, pz, 0, true, true);
+            }
+        }},
+        KnockbackDisabler: { cat: 'World', enabled: false, desc: "No knockback taken." },
+
+        // UTILS
+        Keystrokes: { cat: 'Utils', enabled: false, desc: "Show WASD Overlay.", onToggle: (v) => { document.getElementById("fallen-keystrokes").style.display = v ? "flex" : "none"; }},
+        BetterChests: { cat: 'Utils', enabled: false, desc: "Neon Glow for chests.", tick: () => {
+            document.querySelectorAll(".chest, .inventory-panel").forEach(el => { el.style.boxShadow = Modules.BetterChests.enabled ? "0 0 15px #00e5ff" : ""; });
+        }},
+        FreeMode: { cat: 'Utils', enabled: false, desc: "Hides game UI.", onToggle: (v) => {
+            const ui = [".stats", ".chat", ".hotbar", ".pause-cont", ".name-tag"];
+            ui.forEach(s => { document.querySelectorAll(s).forEach(el => el.style.display = v ? "none" : ""); });
+        }},
+        WarUtils: { cat: 'Utils', enabled: false, desc: "Track K/D Ratio." }
+    };
+
+    function openRemote(id) {
+        if(!hooks.gameWorld) return;
+        const pPos = Object.values(hooks.gameWorld.player.position).map(Math.floor);
+        hooks.stores.get("inventoryState").setBackpackStates(0);
+        const sys = hooks.gameWorld.systemsManager.activeSystems.find(i => i?.openOtherItem);
+        setTimeout(() => sys.openOtherItem(pPos, id), 50);
+        toggleGUI(false);
+    }
+
+    // ==============================
+    // GUI / HUD RENDERING
+    // ==============================
+    const categories = ['Combat', 'Movement', 'Visual', 'Resources', 'World', 'Utils'];
+    const panels = {};
+    
+    // Keystrokes UI
+    const ks = document.createElement("div");
+    ks.id = "fallen-keystrokes"; ks.className = "fallen-gui";
+    ks.innerHTML = `<div class="ks-row"><div class="ks-key" id="ks-W">W</div></div><div class="ks-row"><div class="ks-key" id="ks-A">A</div><div class="ks-key" id="ks-S">S</div><div class="ks-key" id="ks-D">D</div></div><div class="ks-row"><div class="ks-key" style="width:55px" id="ks-L">LMB</div><div class="ks-key" style="width:55px" id="ks-R">RMB</div></div>`;
+    document.body.appendChild(ks);
+
+    // Damage Display
+    const dmg = document.createElement("div");
+    dmg.id = "damage-display"; dmg.className = "fallen-gui"; dmg.innerText = "Damage: 0";
+    document.body.appendChild(dmg);
+
+    const arrayContainer = document.createElement("div");
+    arrayContainer.id = "fallen-arraylist"; arrayContainer.className = "fallen-gui";
+    document.body.appendChild(arrayContainer);
+
+    const bg = document.createElement("div");
+    bg.className = "gui-background"; document.body.appendChild(bg);
+
+    function updateArrayList() {
+        arrayContainer.innerHTML = "";
+        if(!Modules.Arraylist.enabled) return;
+        Object.keys(Modules).filter(n => Modules[n].enabled && n !== "Arraylist").sort((a,b) => b.length - a.length).forEach(name => {
+            const item = document.createElement("div");
+            item.className = "array-item"; item.innerText = name;
+            arrayContainer.appendChild(item);
+        });
+    }
+
+    function createGUI() {
+        categories.forEach((cat, i) => {
+            const panel = document.createElement("div");
+            panel.className = "gui-panel fallen-gui";
+            panel.style.left = (40 + (i * 205)) + "px"; panel.style.top = "100px";
+            const header = document.createElement("div");
+            header.className = "gui-header"; header.innerText = cat;
+            panel.appendChild(header);
+
+            const container = document.createElement("div");
+            Object.keys(Modules).filter(n => Modules[n].cat === cat).forEach(name => {
+                const mod = Modules[name];
+                const btn = document.createElement("div");
+                btn.className = `gui-button ${mod.enabled ? 'enabled' : ''}`;
+                btn.innerHTML = `<span>${name}</span><span class="bind" style="font-size:10px; color:var(--neon); opacity:0.6">${mod.key || ''}</span>`;
+                
+                const settingsDiv = document.createElement("div");
+                settingsDiv.className = "gui-settings";
+                settingsDiv.innerHTML = `<div style="font-size:11px; color:#888; margin-bottom:5px;">${mod.desc || ''}</div>`;
+
+                if (mod.options) {
+                    Object.keys(mod.options).forEach(opt => {
+                        const sItem = document.createElement("div");
+                        sItem.className = "setting-item";
+                        let inputHTML = typeof mod.options[opt] === 'boolean' ? `<input type="checkbox" ${mod.options[opt] ? 'checked' : ''}>` : `<input type="text" class="setting-input" value="${mod.options[opt]}">`;
+                        sItem.innerHTML = `<span>${opt}</span>${inputHTML}`;
+                        const input = sItem.querySelector("input");
+                        input.onchange = () => { mod.options[opt] = input.type === 'checkbox' ? input.checked : input.value; };
+                        settingsDiv.appendChild(sItem);
+                    });
+                }
+
+                btn.onmousedown = (e) => {
+                    if (e.button === 0) {
+                        mod.enabled = !mod.enabled;
+                        btn.classList.toggle("enabled", mod.enabled);
+                        if (mod.onToggle) mod.onToggle(mod.enabled);
+                        updateArrayList();
+                    } else if (e.button === 1) {
+                        e.preventDefault(); mod.waiting = true; btn.querySelector(".bind").innerText = "...";
+                    } else if (e.button === 2) {
+                        e.preventDefault(); settingsDiv.style.display = settingsDiv.style.display === "block" ? "none" : "block";
+                    }
+                };
+                btn.oncontextmenu = (e) => e.preventDefault();
+                container.appendChild(btn); container.appendChild(settingsDiv);
+                mod.element = btn;
+            });
+            panel.appendChild(container); document.body.appendChild(panel);
+            panels[cat] = panel; dragElement(panel, header);
+        });
+    }
+
+    function dragElement(el, header) {
+        let x = 0, y = 0, x1 = 0, y1 = 0;
+        header.onmousedown = (e) => {
+            x1 = e.clientX; y1 = e.clientY;
+            document.onmousemove = (e) => {
+                x = x1 - e.clientX; y = y1 - e.clientY; x1 = e.clientX; y1 = e.clientY;
+                el.style.top = (el.offsetTop - y) + "px"; el.style.left = (el.offsetLeft - x) + "px";
+            };
+            document.onmouseup = () => { document.onmousemove = null; };
+        };
+    }
+
+    function toggleGUI(force) {
+        const show = force !== undefined ? force : bg.style.display !== "block";
+        bg.style.display = show ? "block" : "none";
+        Object.values(panels).forEach(p => p.style.display = show ? "block" : "none");
+        if (show) document.exitPointerLock?.();
+    }
+
+    // Packet / Socket Hook for Damage
+    const OriginalWS = window.WebSocket;
+    window.WebSocket = function(...args) {
+        const ws = new OriginalWS(...args);
+        ws.addEventListener("message", (e) => {
+            try {
+                let data = JSON.parse(typeof e.data === "string" ? e.data : new TextDecoder().decode(e.data));
+                let d = data.damage || data.dmg || (data.hit && data.hit.damage);
+                if (typeof d === "number") {
+                    totalDamage += d;
+                    document.getElementById("damage-display").innerText = "Damage: " + totalDamage;
+                }
+            } catch(ex){}
+        });
+        return ws;
+    };
+
+    // Global Key Events
+    document.addEventListener("keydown", (e) => {
+        if (e.code === "ShiftRight") toggleGUI();
+        const k = document.getElementById("ks-" + e.code.replace("Key", ""));
+        if(k) k.classList.add("active");
+
+        Object.keys(Modules).forEach(name => {
+            const mod = Modules[name];
+            if (mod.waiting) { mod.key = e.code; mod.waiting = false; mod.element.querySelector(".bind").innerText = e.code.replace("Key", ""); return; }
+            if (mod.key === e.code && bg.style.display !== "block") {
+                mod.enabled = !mod.enabled; mod.element.classList.toggle("enabled", mod.enabled);
+                if (mod.onToggle) mod.onToggle(mod.enabled); updateArrayList();
+            }
+        });
+    });
+
+    document.addEventListener("keyup", (e) => {
+        const k = document.getElementById("ks-" + e.code.replace("Key", ""));
+        if(k) k.classList.remove("active");
+    });
+
+    document.addEventListener("mousedown", (e) => {
+        if(e.button === 0 && document.getElementById("ks-L")) document.getElementById("ks-L").classList.add("active");
+        if(e.button === 2 && document.getElementById("ks-R")) document.getElementById("ks-R").classList.add("active");
+    });
+
+    document.addEventListener("mouseup", (e) => {
+        if(e.button === 0 && document.getElementById("ks-L")) document.getElementById("ks-L").classList.remove("active");
+        if(e.button === 2 && document.getElementById("ks-R")) document.getElementById("ks-R").classList.remove("active");
+    });
+
+    setInterval(() => { Object.values(Modules).forEach(m => { if(m.tick) m.tick(); }); }, 1000/60);
+
+    createGUI();
+    updateArrayList();
+})();
