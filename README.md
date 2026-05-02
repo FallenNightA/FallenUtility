@@ -1,66 +1,54 @@
-# ⚡ Fallen Utility - Minefun.io
+# ⚡ Fallen Utility - v5.0 (Final Evolution)
 
+![Icon](https://raw.githubusercontent.com/FallenNightA/FallenUtility/main/icon.png)
 
-![Icon](icon.png)
-
-
-**Fallen Utility** is a high-performance, neon-themed utility script for `minefun.io`. It is designed to enhance your gameplay with advanced survival features, world manipulation, and a sleek user interface.
+**Fallen Utility** is the ultimate neon-themed tool for `minefun.io`. Now integrated with elite ZeraMine features and advanced survival automation.
 
 ---
 
-## ✨ Main Features
+## 🔥 What's New in v5.0?
 
-### ⚔️ Combat
-- **GunModifier:** Customize your weapon (Spread, Firerate, NoRecoil, Bullets).
-- **Aura:** Automatically attack nearby enemies.
-- **1HitAll / 2HitAll:** Perform massive area attacks on the entire server.
-- **Aimbot:** Automatically lock your aim on the nearest target.
+### 📦 World Manipulation
+- **ChestStealer:** Instantly empty any chest the moment you open it.
+- **FastPlace:** Build massive structures or bridges without any placement delay.
 
-### 🏃 Movement
-- **Fly:** Defy gravity and fly through the map.
-- **Speed:** Boost your movement speed significantly.
-- **GhostMode:** Become invisible locally to others.
-- **Spider & Scaffold:** Climb walls and build bridges automatically.
-- **NoFall:** Remove all fall damage.
+### 🍖 Survival Automation
+- **AutoEat:** Automatically consumes food from your hotbar when hunger drops. No more dying from starvation!
+- **AutoArmor:** Scans your inventory and automatically equips the best possible armor pieces.
 
-### 🌍 World & Resources
-- **Nuker Tools:** Special nukers like `CleanABlockTree` (Tree only) and `MineExceptOres` (Auto-mining).
-- **Instabreak:** Break blocks instantly without delay.
-- **AdBypass:** Instantly claim rewards without watching ads.
-- **NoHunger:** Never run out of stamina or food.
-- **Remote Menus:** Access Crafting, Dyeing, and Cutting tables from anywhere.
+### 🛡️ Combat & Security
+- **2HitAll:** A double-pulse area attack that deals twice the damage to everyone in range.
+- **Tracers:** High-visibility neon lines pointing directly to every player on the map.
 
-### 📊 Utils & Visuals
-- **Neon GUI:** A beautiful, draggable multi-panel menu with Neon Blue theme.
-- **Damage Counter:** Tracks your total damage in real-time at the top center.
-- **Keystrokes:** Small, clean overlay for WASD and Mouse clicks.
-- **BetterChests:** Highlights all chests with a neon glow.
-- **FreeMode:** Hides the game UI for a clean screenshot-ready screen.
+---
+
+## ✨ Full Module List
+
+| Category | Key Modules |
+|----------|-------------|
+| **Combat** | Aura, GunModifier, 1HitAll, 2HitAll, AutoArmor, Aimbot |
+| **Movement** | Fly, Speed, GhostMode, Scaffold, Spider, NoFall |
+| **Visual** | Arraylist, Tracers, Chams, NoFog |
+| **Resources**| AdBypass, AutoEat, NoHunger, Remote Crafting/Cutting |
+| **World** | Instabreak, ChestStealer, FastPlace, CleanABlockTree, MineExceptOres |
+| **Utils** | Keystrokes, DamageCounter, FreeMode (UI Hide) |
 
 ---
 
 ## 🎮 Controls
 
-| Key | Action |
-|-----|--------|
-| **Right Shift** | Toggle Cheat Menu |
-| **Left Click** | Enable/Disable Module |
-| **Right Click** | Open Module Settings |
-| **Middle Click** | Set Custom Keybind (Waiting...) |
+- **Right Shift:** Open/Close Menu.
+- **Left Click:** Toggle Feature.
+- **Right Click:** Open Feature Settings & Description.
+- **Middle Click:** Set Custom Keybind (Press any key after clicking).
 
 ---
 
-## 🚀 Installation
-
-1. Install [Tampermonkey](https://www.tampermonkey.net/) extension on your browser.
-2. Create a new script.
-3. Copy and paste the `Fallen Utility.user.js` code from this repository.
-4. Save and refresh [minefun.io](https://minefun.io).
-
----
-
-## ⚠️ Disclaimer
-This script is for educational and utility purposes only. Use it at your own risk. The developer is not responsible for any consequences resulting from the use of this script.
+## 🚀 Quick Install
+1. Open **Tampermonkey Dashboard**.
+2. Click **Create New Script**.
+3. Paste the code from `FallenUtility.js`.
+4. Press **Save** and play!
 
 ---
-*Created with ❤️ by FallenNightA*
+*Developed by FallenNightA*
