@@ -1,7 +1,7 @@
 # ⚡ Fallen Utility - Minefun.io
 
 
-![Icon](Fallen%20Utility%20Script%20Icon.png)
+![Icon](icon.png)
 
 
 **Fallen Utility** is a high-performance, neon-themed utility script for `minefun.io`. It is designed to enhance your gameplay with advanced survival features, world manipulation, and a sleek user interface.
