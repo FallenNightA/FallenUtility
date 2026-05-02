@@ -1,68 +1,77 @@
-# [cite_start]⚡ Fallen Utility - The Ultimate Minefun.io Power-User Script [cite: 37]
+# ⚡ Fallen Utility - v7.0 (God Mode Edition)
 
-[cite_start]**Fallen Utility** is the result of merging technology from two renowned scripts: *Minebuns* and *ZeraMine*[cite: 37]. [cite_start]This script is specifically designed to dominate `minefun.io` servers with stable features and elegant Neon Blue visuals[cite: 38].
+![Icon](https://raw.githubusercontent.com/FallenNightA/FallenUtility/main/icon.png)
 
----
-
-## [cite_start]🛠️ Complete Feature List (Module Information) [cite: 39]
-
-### [cite_start]⚔️ Combat [cite: 39]
-* [cite_start]**Aura (Killaura):** Automatically attacks surrounding players within a certain radius using accurate vector calculations to ensure hits always register (Bypass)[cite: 39].
-* [cite_start]**AimHelper:** Locks the camera aim onto the nearest enemy when you press the shoot/aim button[cite: 40].
-* [cite_start]**GunModifier:** Modifies weapon statistics (No Recoil, Bullets per shot, Instant fire rate, and Bullet range)[cite: 41].
-* [cite_start]**1HitAll:** Sends a single attack packet to all players in the server simultaneously[cite: 42].
-* [cite_start]**2HitAll:** A stronger version of 1HitAll, sending double attacks to ensure enemies die faster[cite: 43].
-* [cite_start]**AutoArmor:** Automatically detects and equips the best armor available in your inventory[cite: 44].
-
-### [cite_start]🏃 Movement [cite: 45]
-* **Fly:** Fly freely across the map. [cite_start]Use Space to ascend and Shift to descend[cite: 45].
-* [cite_start]**Speed:** Run at lightning speed (Speed is adjustable)[cite: 46].
-* [cite_start]**GhostMode:** Visually hides your character (Client-side) to facilitate scouting[cite: 46].
-* [cite_start]**Scaffold:** Automatically places blocks beneath your feet as you walk in the air (Perfect for parkour/bridging)[cite: 47].
-* [cite_start]**Spider:** Allows you to climb vertical walls like a spider[cite: 48].
-* [cite_start]**NoFall:** Eliminates fall damage from any height[cite: 48].
-* [cite_start]**Airjump:** Allows you to jump multiple times in mid-air[cite: 49].
-* [cite_start]**NoClip:** Phaze through solid blocks (Use with caution)[cite: 49].
-
-### [cite_start]👁️ Visual [cite: 50]
-* [cite_start]**ArrayList:** Displays a list of all active features in the top right corner with a Neon Blue bar[cite: 50].
-* [cite_start]**Chams/Wallhack:** Makes other players visible through walls (Wireframe)[cite: 51].
-* [cite_start]**Tracers:** Directional lines connecting you to every player on the map[cite: 51].
-* [cite_start]**NoFog:** Removes game fog for an extremely far render distance[cite: 52].
-* [cite_start]**CustomCrosshair:** Replaces the center screen crosshair with various cool presets or a custom image URL[cite: 53].
-* [cite_start]**ShadersMenu:** Adjusts brightness, contrast, saturation, as well as Bloom effects and snow/rain particles on the screen[cite: 54].
-
-### [cite_start]📦 Resources & Menus [cite: 55]
-* [cite_start]**AdBypass:** Skips all video ads to get daily rewards instantly[cite: 55].
-* [cite_start]**NoHunger:** Locks the food bar so you never get hungry[cite: 56].
-* [cite_start]**NoDrown:** Breathe underwater infinitely[cite: 56].
-* [cite_start]**Remote Menus:** Opens Crafting, Cutting Table, and Dyeing Table menus directly from the GUI without needing the physical tables[cite: 57].
-* [cite_start]**Dupe:** Item duplication exploit (Only works in specific modes)[cite: 58].
-
-### [cite_start]🏗️ World [cite: 59]
-* [cite_start]**Instabreak:** Breaks any block instantly (Creative speed)[cite: 59].
-* [cite_start]**Nuker:** Automatically destroys all surrounding blocks within a large radius[cite: 60].
-* [cite_start]**CleanABlockTree:** A specific nuker that only destroys tree wood[cite: 61].
-* [cite_start]**MineExceptOres:** A smart nuker that destroys stone/dirt but leaves ores (Diamond/Gold) intact[cite: 62].
-* [cite_start]**LineFiller:** Automatically builds a line of blocks from one coordinate to another[cite: 63].
-* [cite_start]**ChestStealer:** Instantly takes all items from a chest upon opening it[cite: 64].
-* [cite_start]**AirPlace:** Allows you to place blocks in empty air[cite: 65].
-
-### [cite_start]⚙️ Utils [cite: 66]
-* [cite_start]**StatsHUD:** Displays FPS, Ping, and CPS (Clicks Per Second) in real-time[cite: 66].
-* [cite_start]**Keystrokes:** Overlays WASD keyboard keys and mouse clicks on the screen[cite: 67].
-* [cite_start]**FreeMode:** Hides the entire game UI for a completely clean screen[cite: 68].
-* [cite_start]**Zoom:** Magnifies camera vision (Keybind C)[cite: 68].
-* [cite_start]**WarUtils:** K/D (Kills/Deaths) stat tracker when playing war modes[cite: 69].
+**Fallen Utility** is a premier power-user script for `minefun.io`. This tool merges the advanced core engines of *Minebuns* and *ZeraMine* to provide a stable, high-performance experience with a stunning Neon Blue aesthetic.
 
 ---
 
-## [cite_start]🎮 Controls [cite: 70]
+## 🛠️ Feature Modules Information
 
-* [cite_start]**Right Shift:** Opens and closes the Main Menu[cite: 70].
-* [cite_start]**Left Click:** Toggles Modules On/Off[cite: 70].
-* [cite_start]**Right Click:** Opens detailed settings for each module[cite: 71].
-* [cite_start]**Middle Click:** Sets shortcut buttons (Keybinds)[cite: 71].
+### ⚔️ Combat
+*   **Aura (Killaura):** Automatically attacks players within reach using optimized vector calculations to ensure hits bypass anti-cheat.
+*   **AimHelper:** A sticky aim system that locks your crosshair onto the nearest enemy when attacking.
+*   **GunModifier:** Full control over weapon stats: No Spread, Instant Firerate, and Infinite Range.
+*   **1HitAll / 2HitAll:** Powerful server-wide exploits that send attack packets to every player simultaneously.
+*   **AutoArmor:** Automatically scans and equips the best armor from your inventory.
+
+### 🏃 Movement
+*   **Fly:** Allows you to fly through the map. Use `Space` to go up and `Shift` to go down.
+*   **Speed:** Boosts your walking and sprinting speed (Adjustable).
+*   **GhostMode:** Makes your character model invisible locally for scouting.
+*   **Scaffold:** Automatically places blocks beneath you while walking in the air.
+*   **Spider:** Climb vertical walls effortlessly.
+*   **NoFall:** Completely removes fall damage.
+*   **Airjump & NoClip:** Advanced movement hacks for parkour and passing through blocks.
+
+### 👁️ Visuals
+*   **ArrayList:** A clean HUD in the top-right corner listing all active features.
+*   **Chams (Wallhack):** Renders players as wireframes, making them visible through solid objects.
+*   **Tracers:** Neon lines connecting you to every player on the map.
+*   **NoFog:** Removes game fog for maximum visibility.
+*   **ShadersMenu:** Customizable screen effects like Bloom, Saturation, and Weather particles.
+
+### 📦 Resources & Menus
+*   **AdBypass:** Instantly skip reward ads for daily bonuses and shop items.
+*   **NoHunger:** Freezes your hunger bar to stay at full stamina forever.
+*   **Remote Menus:** Open the Crafting, Cutting, and Dyeing tables anywhere without needing the actual blocks.
+
+### 🏗️ World Manipulation
+*   **Instabreak:** Break any block instantly (Creative speed).
+*   **Nuker:** Automatically destroys all blocks in a large radius around you.
+*   **MineExceptOres:** A smart nuker that clears dirt/stone but leaves Diamonds and Gold untouched.
+*   **ChestStealer:** Instantly loots all items from a chest the moment it's opened.
+*   **AirPlace:** Build structures in mid-air.
+
+### ⚙️ Utils
+*   **StatsHUD:** Shows real-time FPS, Ping, and CPS (Clicks Per Second).
+*   **Keystrokes:** Small on-screen display for WASD and Mouse inputs.
+*   **FreeMode:** Hides all game UI for a clean, cinematic screenshot.
+*   **Zoom:** Magnify your vision (Default Key: C).
 
 ---
-[cite_start]*Created by FallenNightA* [cite: 72]
+
+## 🎮 Controls
+
+| Interaction | Action |
+|-------------|--------|
+| **Right Shift** | Open/Close the Main Menu |
+| **Left Click** | Enable or Disable a Module |
+| **Right Click** | Open Module Settings & Description |
+| **Middle Click** | Set Custom Keybind (Press any key after clicking) |
+
+---
+
+## 🚀 Installation
+
+1.  Install the [Tampermonkey](https://www.tampermonkey.net/) extension on your browser.
+2.  Go to your GitHub repository and copy the script code.
+3.  In Tampermonkey, create a **New UserScript**.
+4.  Paste the code, press **Ctrl+S** to save.
+5.  Refresh [minefun.io](https://minefun.io) and enjoy!
+
+---
+## ⚠️ Disclaimer
+This script is for educational purposes only. Using third-party tools may result in account restrictions. Use it responsibly.
+
+*Created with ❤️ by FallenNightA*
